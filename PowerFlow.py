@@ -77,3 +77,6 @@ line_set = datasets[1].split("\n")
 for row in line_set:
     if row.strip():
         lines[row[0:4].strip() + "-" + row[4:12].strip()] = Line(row)
+
+# Nodal Admittance Matrix
+Ybus = np.zeros((len(buses), len(buses)))
