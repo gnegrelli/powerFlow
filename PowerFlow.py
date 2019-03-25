@@ -12,6 +12,7 @@ class Bus:
         self.bustype = bustypes[databus[4:8].strip()]
 
         self.V = float(databus[22:26])/1000
+
         if databus[26:30].strip():
             self.theta = float(databus[26:30])
         else:
@@ -37,12 +38,25 @@ class Bus:
 
 # Class of system lines
 class Line:
-    def __init__(self, origin, destiny, R, X, B):
-        self.origin = origin
-        self.destiny = destiny
-        self.R = R
-        self.X = X
-        self.B = B
+    def __init__(self, dataline):
+
+        self.origin = int(dataline[0:4].strip())
+        self.destiny = int(dataline[4:12].strip())
+
+        if dataline[16:23].strip():
+            self.R = float(dataline[16:23])
+        else:
+            self.R = 0
+
+        if dataline[23:29].strip():
+            self.X = float(dataline[23:29])
+        else:
+            self.X = 0
+
+        if dataline[29:35].strip():
+            self.B = float(dataline[29:35])
+        else:
+            self.B = 0
 
 
 rawData = open("Monticelli_ex5_2.txt", "r").read()
@@ -55,3 +69,11 @@ bus_set = datasets[0].split('\n')
 for row in bus_set:
     if row.strip():
         buses[str(int(row[0:4]))] = Bus(row)
+
+# Create line objects
+lines = dict()
+line_set = datasets[1].split("\n")
+
+for row in line_set:
+    if row.strip():
+        lines[row[0:4].strip() + "-" + row[4:12].strip()] = Line(row)
