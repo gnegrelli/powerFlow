@@ -18,22 +18,22 @@ class Bus:
         else:
             self.theta = 0
 
-        P = []
-        Q = []
+        p = []
+        q = []
         for item in [databus[30:35], databus[56:60]]:
             if not item.strip():
-                P.append(0)
+                p.append(0)
             else:
-                P.append(float(item))
+                p.append(float(item))
 
         for item in [databus[35:40], databus[60:65]]:
             if not item.strip():
-                Q.append(0)
+                q.append(0)
             else:
-                Q.append(float(item))
+                q.append(float(item))
 
-        self.P = P[0] - P[1]
-        self.Q = Q[0] - Q[1]
+        self.P = p[0] - p[1]
+        self.Q = q[0] - q[1]
 
 
 # Class of system lines
@@ -93,4 +93,17 @@ Ybus += Ybus.T
 
 np.fill_diagonal(Ybus, Bshunt - np.sum(Ybus, axis=1))
 
+#
+P = np.zeros(len(buses))
+Q = np.zeros(len(buses))
+
+for bus in range(len(buses)):
+    for otherbus in range(len(buses)):
+
+        # Calculate angle difference
+        theta_km = buses[str(bus + 1)].theta - buses[str(otherbus + 1)].theta
+
+        # Calculate active and reactive power reaching bus
+        P[bus] += buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus]) * np.cos(theta_km) + np.imag(Ybus[bus, otherbus] * np.sin(theta_km)))
+        Q[bus] += buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus]) * np.cos(theta_km) - np.imag(Ybus[bus, otherbus] * np.sin(theta_km)))
 
