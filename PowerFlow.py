@@ -79,4 +79,14 @@ for row in line_set:
         lines[row[0:4].strip() + "-" + row[4:12].strip()] = Line(row)
 
 # Nodal Admittance Matrix
-Ybus = np.zeros((len(buses), len(buses)))
+Ybus = np.zeros((len(buses), len(buses)), dtype=complex)
+
+for key in lines.keys():
+    Ybus[lines[key].origin-1][lines[key].destiny-1] = -1/(lines[key].R + 1j*lines[key].X)
+
+Ybus += Ybus.T
+
+print(Ybus)
+
+print(-np.sum(Ybus, axis=1))
+
