@@ -122,10 +122,6 @@ for bus in range(len(buses)):
         Q[bus] += buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus])*np.sin(theta_km) - np.imag(Ybus[bus, otherbus]*np.cos(theta_km)))
 
     if buses[str(bus+1)].bustype == 'PQ':
-        print(buses[str(bus+1)].P)
-        print(P[bus])
-        print(buses[str(bus + 1)].Q)
-        print(Q[bus])
         misP[bus] = buses[str(bus+1)].P - P[bus]
         misQ[bus] = buses[str(bus+1)].Q - Q[bus]
     elif buses[str(bus+1)].bustype == 'PV':
@@ -134,4 +130,21 @@ for bus in range(len(buses)):
 # Mismatch vector
 mis = np.vstack((np.array([misP]).T, np.array([misQ]).T,))
 
+# Create Jacobian Submatrices
+H = np.zeros((len(buses), len(buses)))
+N = np.zeros((len(buses), len(buses)))
+M = np.zeros((len(buses), len(buses)))
+L = np.zeros((len(buses), len(buses)))
 
+for bus in range(len(buses)):
+    for otherbus in range(len(buses)):
+        if bus is not otherbus:
+            H[bus, otherbus] = 0
+            N[bus, otherbus] = 0
+            M[bus, otherbus] = 0
+            L[bus, otherbus] = 0
+        else:
+            H[bus, otherbus] = 0
+            N[bus, otherbus] = 0
+            M[bus, otherbus] = 0
+            L[bus, otherbus] = 0
