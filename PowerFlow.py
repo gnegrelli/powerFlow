@@ -131,6 +131,7 @@ for bus in range(len(buses)):
     elif buses[str(bus+1)].bustype == 'PV':
         misP[bus] = buses[str(bus+1)].P - P[bus]
 
-print(misP)
-print(misQ)
+# Mismatch vector
+mis = np.vstack((np.array([misP]).T, np.array([misQ]).T,))
+
 
