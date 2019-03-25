@@ -44,17 +44,17 @@ class Line:
         self.destiny = int(dataline[4:12].strip())
 
         if dataline[16:23].strip():
-            self.R = float(dataline[16:23])
+            self.R = float(dataline[16:23])/100
         else:
             self.R = 0
 
         if dataline[23:29].strip():
-            self.X = float(dataline[23:29])
+            self.X = float(dataline[23:29])/100
         else:
             self.X = 0
 
         if dataline[29:35].strip():
-            self.B = float(dataline[29:35])
+            self.B = float(dataline[29:35])/100
         else:
             self.B = 0
 
@@ -93,5 +93,4 @@ Ybus += Ybus.T
 
 np.fill_diagonal(Ybus, Bshunt - np.sum(Ybus, axis=1))
 
-print(Ybus)
 
