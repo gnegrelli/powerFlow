@@ -138,11 +138,15 @@ L = np.zeros((len(buses), len(buses)))
 
 for bus in range(len(buses)):
     for otherbus in range(len(buses)):
+
+        # Calculate angle difference
+        theta_km = buses[str(bus + 1)].theta - buses[str(otherbus + 1)].theta
+
         if bus is not otherbus:
-            H[bus, otherbus] = 0
-            N[bus, otherbus] = 0
-            M[bus, otherbus] = 0
-            L[bus, otherbus] = 0
+            H[bus, otherbus] = buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus])*np.sin(theta_km) - np.imag(Ybus[bus, otherbus]*np.cos(theta_km)))
+            N[bus, otherbus] = buses[str(bus+1)].V*(np.real(Ybus[bus, otherbus])*np.cos(theta_km) + np.imag(Ybus[bus, otherbus]*np.sin(theta_km)))
+            M[bus, otherbus] = -buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus])*np.cos(theta_km) + np.imag(Ybus[bus, otherbus]*np.sin(theta_km)))
+            L[bus, otherbus] = buses[str(bus+1)].V*(np.real(Ybus[bus, otherbus])*np.sin(theta_km) - np.imag(Ybus[bus, otherbus]*np.cos(theta_km)))
         else:
             H[bus, otherbus] = 0
             N[bus, otherbus] = 0
