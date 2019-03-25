@@ -32,8 +32,8 @@ class Bus:
             else:
                 q.append(float(item))
 
-        self.P = p[0] - p[1]
-        self.Q = q[0] - q[1]
+        self.P = (p[0] - p[1])/Sb
+        self.Q = (q[0] - q[1])/Sb
 
 
 # Class of system lines
@@ -58,6 +58,8 @@ class Line:
         else:
             self.B = 0
 
+# Base Power
+Sb = 100
 
 rawData = open("Monticelli_ex5_2.txt", "r").read()
 datasets = rawData.split("9999\n")
@@ -93,9 +95,21 @@ Ybus += Ybus.T
 
 np.fill_diagonal(Ybus, Bshunt - np.sum(Ybus, axis=1))
 
+# Flat Start
+for key in buses.keys():
+    if buses[key].bustype == 'PQ':
+        buses[key].V = 1
+        buses[key].theta = 0
+    elif buses[key].bustype == 'PV':
+        buses[key].theta = 0
+
 #
 P = np.zeros(len(buses))
 Q = np.zeros(len(buses))
+
+# Mismatches
+misP = np.zeros(len(buses))
+misQ = np.zeros(len(buses))
 
 for bus in range(len(buses)):
     for otherbus in range(len(buses)):
@@ -104,6 +118,19 @@ for bus in range(len(buses)):
         theta_km = buses[str(bus + 1)].theta - buses[str(otherbus + 1)].theta
 
         # Calculate active and reactive power reaching bus
-        P[bus] += buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus]) * np.cos(theta_km) + np.imag(Ybus[bus, otherbus] * np.sin(theta_km)))
-        Q[bus] += buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus]) * np.cos(theta_km) - np.imag(Ybus[bus, otherbus] * np.sin(theta_km)))
+        P[bus] += buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus])*np.cos(theta_km) + np.imag(Ybus[bus, otherbus]*np.sin(theta_km)))
+        Q[bus] += buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus])*np.sin(theta_km) - np.imag(Ybus[bus, otherbus]*np.cos(theta_km)))
+
+    if buses[str(bus+1)].bustype == 'PQ':
+        print(buses[str(bus+1)].P)
+        print(P[bus])
+        print(buses[str(bus + 1)].Q)
+        print(Q[bus])
+        misP[bus] = buses[str(bus+1)].P - P[bus]
+        misQ[bus] = buses[str(bus+1)].Q - Q[bus]
+    elif buses[str(bus+1)].bustype == 'PV':
+        misP[bus] = buses[str(bus+1)].P - P[bus]
+
+print(misP)
+print(misQ)
 
