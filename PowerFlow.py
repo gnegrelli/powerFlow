@@ -81,12 +81,17 @@ for row in line_set:
 # Nodal Admittance Matrix
 Ybus = np.zeros((len(buses), len(buses)), dtype=complex)
 
+# Shunt Elements Vector
+Bshunt = np.zeros(len(buses), dtype=complex)
+
 for key in lines.keys():
-    Ybus[lines[key].origin-1][lines[key].destiny-1] = -1/(lines[key].R + 1j*lines[key].X)
+    Ybus[lines[key].origin - 1][lines[key].destiny - 1] = -1/(lines[key].R + 1j*lines[key].X)
+    Bshunt[lines[key].origin - 1] += 1j*lines[key].B/2
+    Bshunt[lines[key].destiny - 1] += 1j*lines[key].B/2
 
 Ybus += Ybus.T
 
-print(Ybus)
+np.fill_diagonal(Ybus, Bshunt - np.sum(Ybus, axis=1))
 
-print(-np.sum(Ybus, axis=1))
+print(Ybus)
 
