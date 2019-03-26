@@ -148,6 +148,12 @@ for bus in range(len(buses)):
 # Mismatch vector
 mis = np.vstack((np.array([misP]).T, np.array([misQ]).T,))
 
+print("Iteration #%d" % counter)
+print("Error: %f" % max(abs(mis))[0])
+for key in buses.keys():
+    print("V%s = %4f < %2f" % (key, buses[key].V, buses[key].theta))
+print(30*"-")
+
 while max(abs(mis)) > tolerance and counter < 100:
 
     # Create Jacobian Submatrices
@@ -193,9 +199,6 @@ while max(abs(mis)) > tolerance and counter < 100:
     for index in range(int(len(correction)/2)):
         buses[str(index + 1)].refresh(correction[index][0], correction[index + len(buses)][0])
 
-    for key in buses.keys():
-        print("V%s = %4f < %2f" % (key, buses[key].V, buses[key].theta))
-
     # Initialize Active and Reactive Power
     P = np.zeros(len(buses))
     Q = np.zeros(len(buses))
@@ -225,6 +228,13 @@ while max(abs(mis)) > tolerance and counter < 100:
     # Mismatch vector
     mis = np.vstack((np.array([misP]).T, np.array([misQ]).T,))
 
-    print(max(abs(mis)))
-
+    # Refresh counter
     counter += 1
+
+    print("\nIteration #%d" % counter)
+    print("Error: %f" % max(abs(mis))[0])
+    for key in buses.keys():
+        print("V%s = %4f < %2f" % (key, buses[key].V, buses[key].theta))
+    print(30*"-")
+
+
