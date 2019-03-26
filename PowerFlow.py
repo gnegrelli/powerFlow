@@ -78,6 +78,10 @@ class Line:
         else:
             self.B = 0.
 
+        # Power flowing from origin to destiny and destiny to origin
+        self.S_od = 0
+        self.S_do = 0
+
 
 # Base Power
 Sb = 100.
