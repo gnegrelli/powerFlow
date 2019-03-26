@@ -3,6 +3,7 @@ import numpy as np
 
 # Class of system buses
 class Bus:
+
     def __init__(self, databus):
 
         bustypes = {'0': 'PQ', '1': 'PV', '2': 'Vθ'}
@@ -35,9 +36,19 @@ class Bus:
         self.P = (p[0] - p[1])/Sb
         self.Q = (q[0] - q[1])/Sb
 
+    # Function to refresh values of voltage and angle on buses
+    def refresh(self, ang, v):
+        print("I'm here!")
+        if self.bustype == 'PQ':
+            self.theta += ang
+            self.V += v
+        elif self.bustype == 'PV':
+            self.theta += ang
+
 
 # Class of system lines
 class Line:
+
     def __init__(self, dataline):
 
         self.origin = int(dataline[0:4].strip())
@@ -164,6 +175,11 @@ for bus in range(len(buses)):
 
 J = np.vstack((np.hstack((H, N)), np.hstack((M, L))))
 
-print(J)
+correction = np.linalg.solve(J, mis)
 
-print(np.linalg.solve(J, mis))
+print(correction, correction[3], len(correction)/2)
+
+# for index in range(len(correction)/2):
+buses['2'].refresh(10, 2)
+
+print(buses['2'].V, buses['2'].theta)
