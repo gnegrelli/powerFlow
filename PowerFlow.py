@@ -82,6 +82,14 @@ class Line:
         self.S_od = 0
         self.S_do = 0
 
+    def save_flow(self, p, q, bus_origin):
+        if bus_origin == self.origin:
+            self.S_od = p + 1j*q
+        elif bus_origin == self.destiny:
+            self.S_do = p + 1j * q
+        else:
+            print("ERROR: The bus must be at one of the ends of the line")
+
 
 # Base Power
 Sb = 100.
