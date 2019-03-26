@@ -118,6 +118,9 @@ for row in line_set:
     if row.strip():
         lines[row[0:4].strip() + "-" + row[4:12].strip()] = Line(row)
 
+# Create file
+f = open("results.txt", "w+")
+
 # Nodal Admittance Matrix
 Ybus = np.zeros((len(buses), len(buses)), dtype=complex)
 
@@ -171,7 +174,7 @@ for bus in range(len(buses)):
         misP[bus] = buses[str(bus+1)].P - P[bus]
 
 # Mismatch vector
-mis = np.vstack((np.array([misP]).T, np.array([misQ]).T,))
+mis = np.vstack((np.array([misP]).T, np.array([misQ]).T))
 
 # Print Status
 print("Iteration #%d" % counter)
@@ -179,6 +182,13 @@ print("Error: %f" % max(abs(mis))[0])
 for key in buses.keys():
     print("V%s = %4f < %2f" % (key, buses[key].V, buses[key].theta))
 print(30*"-")
+
+# Write in results file
+f.write("Iteration #%d" % counter)
+f.write("\nError: %f" % max(abs(mis))[0])
+for key in buses.keys():
+    f.write("\nV%s = %4f < %2f" % (key, buses[key].V, buses[key].theta))
+f.write("\n" + 30*"-" + "\n")
 
 while max(abs(mis)) > tolerance and counter < 100:
 
@@ -255,7 +265,7 @@ while max(abs(mis)) > tolerance and counter < 100:
             misP[bus] = buses[str(bus+1)].P - P[bus]
 
     # Mismatch vector
-    mis = np.vstack((np.array([misP]).T, np.array([misQ]).T,))
+    mis = np.vstack((np.array([misP]).T, np.array([misQ]).T))
 
     # Refresh counter
     counter += 1
@@ -267,4 +277,19 @@ while max(abs(mis)) > tolerance and counter < 100:
         print("V%s = %4f < %2f" % (key, buses[key].V, buses[key].theta))
     print(30*"-")
 
+    # Write in results file
+    f.write("\nIteration #%d" % counter)
+    f.write("\nError: %f" % max(abs(mis))[0])
+    for key in buses.keys():
+        f.write("\nV%s = %4f < %2f" % (key, buses[key].V, buses[key].theta))
+    f.write("\n" + 30*"-" + "\n")
 
+# for key in lines.keys():
+#
+#     theta_km = buses[str(lines[key].origin)].theta - buses[str(lines[key].destiny)].theta
+#
+#     Vk = buses[str(lines[key].origin)].V
+#     Vm = buses[str(lines[key].destiny)].V
+#
+#     pkm = (Vk**2)*np.real(Ybus[lines[key].origin-1][lines[key].destiny-1]) - Vk*Vm*(np.real(Ybus[lines[key].origin-1][lines[key].destiny-1])*np.cos(theta_km) + np.imag(Ybus[lines[key].origin-1][lines[key].destiny-1])*np.sin(theta_km))
+#     qkm = -(Vk**2)*(np.imag(Ybus[lines[key].origin-1][lines[key].destiny-1]) + bkmsh) - Vk*Vm*(np.real(Ybus[lines[key].origin-1][lines[key].destiny-1])*np.sin(theta_km) - np.imag(Ybus[lines[key].origin-1][lines[key].destiny-1])*np.cos(theta_km))
