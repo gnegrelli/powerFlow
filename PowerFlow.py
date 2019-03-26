@@ -284,12 +284,25 @@ while max(abs(mis)) > tolerance and counter < 100:
         f.write("\nV%s = %4f < %2f" % (key, buses[key].V, buses[key].theta))
     f.write("\n" + 30*"-" + "\n")
 
-# for key in lines.keys():
-#
-#     theta_km = buses[str(lines[key].origin)].theta - buses[str(lines[key].destiny)].theta
-#
-#     Vk = buses[str(lines[key].origin)].V
-#     Vm = buses[str(lines[key].destiny)].V
-#
-#     pkm = (Vk**2)*np.real(Ybus[lines[key].origin-1][lines[key].destiny-1]) - Vk*Vm*(np.real(Ybus[lines[key].origin-1][lines[key].destiny-1])*np.cos(theta_km) + np.imag(Ybus[lines[key].origin-1][lines[key].destiny-1])*np.sin(theta_km))
-#     qkm = -(Vk**2)*(np.imag(Ybus[lines[key].origin-1][lines[key].destiny-1]) + bkmsh) - Vk*Vm*(np.real(Ybus[lines[key].origin-1][lines[key].destiny-1])*np.sin(theta_km) - np.imag(Ybus[lines[key].origin-1][lines[key].destiny-1])*np.cos(theta_km))
+# Power flow calculation saving it on line object
+for key in lines.keys():
+
+    theta_km = buses[str(lines[key].origin)].theta - buses[str(lines[key].destiny)].theta
+
+    Vk = buses[str(lines[key].origin)].V
+    Vm = buses[str(lines[key].destiny)].V
+
+    Y = 1/(lines[key].R + 1j*lines[key].X)
+
+    pkm = (Vk**2)*np.real(Y) - Vk*Vm*(np.real(Y)*np.cos(theta_km) + np.imag(Y)*np.sin(theta_km))
+    qkm = -(Vk**2)*(np.imag(Y) + lines[key].B/2) - Vk*Vm*(np.real(Y)*np.sin(theta_km) - np.imag(Y)*np.cos(theta_km))
+
+    lines[key].save_flow(pkm, qkm, lines[key].origin)
+
+    pmk = (Vm**2)*np.real(Y) - Vm*Vk*(np.real(Y)*np.cos(-theta_km) + np.imag(Y)*np.sin(-theta_km))
+    qmk = -(Vm**2)*(np.imag(Y) + lines[key].B/2) - Vk*Vm*(np.real(Y)*np.sin(-theta_km) - np.imag(Y)*np.cos(-theta_km))
+
+    lines[key].save_flow(pmk, qmk, lines[key].destiny)
+
+for key in lines.keys():
+    print(lines[key].S_od, lines[key].S_do, lines[key].S_od - lines[key].S_do)
