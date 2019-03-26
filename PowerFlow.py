@@ -62,7 +62,8 @@ class Line:
 # Base Power
 Sb = 100
 
-rawData = open("Monticelli_ex5_2.txt", "r").read()
+# rawData = open("Monticelli_ex5_2.txt", "r").read()
+rawData = open("example.txt", "r").read()
 datasets = rawData.split("9999\n")
 
 # Create bus objects
@@ -150,9 +151,19 @@ for bus in range(len(buses)):
             M[bus, otherbus] = -buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus])*np.cos(theta_km) + np.imag(Ybus[bus, otherbus]*np.sin(theta_km)))
             L[bus, otherbus] = buses[str(bus+1)].V*(np.real(Ybus[bus, otherbus])*np.sin(theta_km) - np.imag(Ybus[bus, otherbus]*np.cos(theta_km)))
         else:
-            H[bus, otherbus] = -Q[bus] - (buses[str(bus+1)].V**2)*np.imag(Ybus[bus, bus])
+            if buses[str(bus+1)].bustype == 'Vθ':
+                H[bus, otherbus] = 10**99
+            else:
+                H[bus, otherbus] = -Q[bus] - (buses[str(bus+1)].V**2)*np.imag(Ybus[bus, bus])
             N[bus, otherbus] = (P[bus] + (buses[str(bus+1)].V**2)*np.real(Ybus[bus, bus]))/buses[str(bus+1)].V
             M[bus, otherbus] = P[bus] - (buses[str(bus+1)].V**2)*np.real(Ybus[bus, bus])
-            L[bus, otherbus] = (Q[bus] - (buses[str(bus+1)].V**2)*np.imag(Ybus[bus, bus]))/buses[str(bus+1)].V
+            if buses[str(bus+1)].bustype == 'PQ':
+                L[bus, otherbus] = (Q[bus] - (buses[str(bus+1)].V**2)*np.imag(Ybus[bus, bus]))/buses[str(bus+1)].V
+            else:
+                L[bus, otherbus] = 10**99
 
 J = np.vstack((np.hstack((H, N)), np.hstack((M, L))))
+
+print(J)
+
+print(np.linalg.solve(J, mis))
