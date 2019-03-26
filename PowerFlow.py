@@ -58,6 +58,7 @@ class Line:
         else:
             self.B = 0
 
+
 # Base Power
 Sb = 100
 
@@ -136,6 +137,7 @@ N = np.zeros((len(buses), len(buses)))
 M = np.zeros((len(buses), len(buses)))
 L = np.zeros((len(buses), len(buses)))
 
+# Calculate Jacobian Submatrices
 for bus in range(len(buses)):
     for otherbus in range(len(buses)):
 
@@ -152,3 +154,5 @@ for bus in range(len(buses)):
             N[bus, otherbus] = (P[bus] + (buses[str(bus+1)].V**2)*np.real(Ybus[bus, bus]))/buses[str(bus+1)].V
             M[bus, otherbus] = P[bus] - (buses[str(bus+1)].V**2)*np.real(Ybus[bus, bus])
             L[bus, otherbus] = (Q[bus] - (buses[str(bus+1)].V**2)*np.imag(Ybus[bus, bus]))/buses[str(bus+1)].V
+
+J = np.vstack((np.hstack((H, N)), np.hstack((M, L))))
