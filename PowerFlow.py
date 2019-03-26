@@ -304,5 +304,17 @@ for key in lines.keys():
 
     lines[key].save_flow(pmk, qmk, lines[key].destiny)
 
+# Print power flow results
+print("\nPower Flow\n")
+print("Line", 6*"\t", "Skm", 11*"\t", "Smk", 11*"\t", "Perdas")
+print(150*"-")
+
 for key in lines.keys():
-    print(lines[key].S_od, lines[key].S_do, lines[key].S_od - lines[key].S_do)
+    print(key, "\t", lines[key].S_od, "\t", lines[key].S_do, "\t", lines[key].S_od - lines[key].S_do)
+
+# Write power flow results on file
+f.write("\n\nPower Flow\n")
+f.write("\n" + "Line" + 6*"\t" + "Skm" + 11*"\t" + "Smk" + 11*"\t" + "Perdas")
+f.write("\n" + 150*"-")
+for key in lines.keys():
+    f.write("\n" + key + "\t" + str(lines[key].S_od) + "\t" + str(lines[key].S_do) + "\t" + str(lines[key].S_od - lines[key].S_do))
