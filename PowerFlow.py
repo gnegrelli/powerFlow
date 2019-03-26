@@ -148,7 +148,7 @@ for bus in range(len(buses)):
             M[bus, otherbus] = -buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus])*np.cos(theta_km) + np.imag(Ybus[bus, otherbus]*np.sin(theta_km)))
             L[bus, otherbus] = buses[str(bus+1)].V*(np.real(Ybus[bus, otherbus])*np.sin(theta_km) - np.imag(Ybus[bus, otherbus]*np.cos(theta_km)))
         else:
-            H[bus, otherbus] = 0
-            N[bus, otherbus] = 0
-            M[bus, otherbus] = 0
-            L[bus, otherbus] = 0
+            H[bus, otherbus] = -Q[bus] - (buses[str(bus+1)].V**2)*np.imag(Ybus[bus, bus])
+            N[bus, otherbus] = (P[bus] + (buses[str(bus+1)].V**2)*np.real(Ybus[bus, bus]))/buses[str(bus+1)].V
+            M[bus, otherbus] = P[bus] - (buses[str(bus+1)].V**2)*np.real(Ybus[bus, bus])
+            L[bus, otherbus] = (Q[bus] - (buses[str(bus+1)].V**2)*np.imag(Ybus[bus, bus]))/buses[str(bus+1)].V
