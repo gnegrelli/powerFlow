@@ -45,6 +45,15 @@ class Bus:
         elif self.bustype == 'PV':
             self.theta += ang
 
+    # Function to save values of power
+    def save_power(self, p, q):
+
+        if self.bustype == 'Vθ':
+            self.P = p
+            self.Q = q
+        elif self.bustype == 'PV':
+            self.Q = q
+
 
 # Class of system lines
 class Line:
@@ -73,11 +82,12 @@ class Line:
 # Base Power
 Sb = 100.
 
-tolerance = 0.001
+# Method variables
+tolerance = 0.000001
 counter = 0
 
-# rawData = open("Monticelli_ex5_2.txt", "r").read()
-rawData = open("example.txt", "r").read()
+rawData = open("Monticelli_ex5_2.txt", "r").read()
+# rawData = open("example.txt", "r").read()
 datasets = rawData.split("9999\n")
 
 # Create bus objects
@@ -148,6 +158,7 @@ for bus in range(len(buses)):
 # Mismatch vector
 mis = np.vstack((np.array([misP]).T, np.array([misQ]).T,))
 
+# Print Status
 print("Iteration #%d" % counter)
 print("Error: %f" % max(abs(mis))[0])
 for key in buses.keys():
@@ -231,6 +242,7 @@ while max(abs(mis)) > tolerance and counter < 100:
     # Refresh counter
     counter += 1
 
+    # Print Status
     print("\nIteration #%d" % counter)
     print("Error: %f" % max(abs(mis))[0])
     for key in buses.keys():
