@@ -17,19 +17,19 @@ class Bus:
         if databus[26:30].strip():
             self.theta = float(databus[26:30])
         else:
-            self.theta = 0
+            self.theta = 0.
 
         p = []
         q = []
         for item in [databus[30:35], databus[56:60]]:
             if not item.strip():
-                p.append(0)
+                p.append(0.)
             else:
                 p.append(float(item))
 
         for item in [databus[35:40], databus[60:65]]:
             if not item.strip():
-                q.append(0)
+                q.append(0.)
             else:
                 q.append(float(item))
 
@@ -38,7 +38,7 @@ class Bus:
 
     # Function to refresh values of voltage and angle on buses
     def refresh(self, ang, v):
-        print("I'm here!")
+
         if self.bustype == 'PQ':
             self.theta += ang
             self.V += v
@@ -57,21 +57,21 @@ class Line:
         if dataline[16:23].strip():
             self.R = float(dataline[16:23])/100
         else:
-            self.R = 0
+            self.R = 0.
 
         if dataline[23:29].strip():
             self.X = float(dataline[23:29])/100
         else:
-            self.X = 0
+            self.X = 0.
 
         if dataline[29:35].strip():
             self.B = float(dataline[29:35])/100
         else:
-            self.B = 0
+            self.B = 0.
 
 
 # Base Power
-Sb = 100
+Sb = 100.
 
 # rawData = open("Monticelli_ex5_2.txt", "r").read()
 rawData = open("example.txt", "r").read()
@@ -111,19 +111,20 @@ np.fill_diagonal(Ybus, Bshunt - np.sum(Ybus, axis=1))
 # Flat Start
 for key in buses.keys():
     if buses[key].bustype == 'PQ':
-        buses[key].V = 1
-        buses[key].theta = 0
+        buses[key].V = 1.
+        buses[key].theta = 0.
     elif buses[key].bustype == 'PV':
-        buses[key].theta = 0
+        buses[key].theta = 0.
 
-#
+# Initialize Active and Reactive Power
 P = np.zeros(len(buses))
 Q = np.zeros(len(buses))
 
-# Mismatches
+# Initialize Mismatches
 misP = np.zeros(len(buses))
 misQ = np.zeros(len(buses))
 
+# Power Calculation
 for bus in range(len(buses)):
     for otherbus in range(len(buses)):
 
@@ -134,6 +135,7 @@ for bus in range(len(buses)):
         P[bus] += buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus])*np.cos(theta_km) + np.imag(Ybus[bus, otherbus]*np.sin(theta_km)))
         Q[bus] += buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus])*np.sin(theta_km) - np.imag(Ybus[bus, otherbus]*np.cos(theta_km)))
 
+    # Calculate mismatches
     if buses[str(bus+1)].bustype == 'PQ':
         misP[bus] = buses[str(bus+1)].P - P[bus]
         misQ[bus] = buses[str(bus+1)].Q - Q[bus]
@@ -156,18 +158,24 @@ for bus in range(len(buses)):
         # Calculate angle difference
         theta_km = buses[str(bus + 1)].theta - buses[str(otherbus + 1)].theta
 
+        # Calculate values outside main diagonal
         if bus is not otherbus:
             H[bus, otherbus] = buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus])*np.sin(theta_km) - np.imag(Ybus[bus, otherbus]*np.cos(theta_km)))
             N[bus, otherbus] = buses[str(bus+1)].V*(np.real(Ybus[bus, otherbus])*np.cos(theta_km) + np.imag(Ybus[bus, otherbus]*np.sin(theta_km)))
             M[bus, otherbus] = -buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus])*np.cos(theta_km) + np.imag(Ybus[bus, otherbus]*np.sin(theta_km)))
             L[bus, otherbus] = buses[str(bus+1)].V*(np.real(Ybus[bus, otherbus])*np.sin(theta_km) - np.imag(Ybus[bus, otherbus]*np.cos(theta_km)))
+        # Calculate values in main diagonal
         else:
+            # Don't apply changes of angle to Vθ buses
             if buses[str(bus+1)].bustype == 'Vθ':
                 H[bus, otherbus] = 10**99
             else:
                 H[bus, otherbus] = -Q[bus] - (buses[str(bus+1)].V**2)*np.imag(Ybus[bus, bus])
+
             N[bus, otherbus] = (P[bus] + (buses[str(bus+1)].V**2)*np.real(Ybus[bus, bus]))/buses[str(bus+1)].V
             M[bus, otherbus] = P[bus] - (buses[str(bus+1)].V**2)*np.real(Ybus[bus, bus])
+
+            # Don't apply changes of voltage to Vθ and PV buses
             if buses[str(bus+1)].bustype == 'PQ':
                 L[bus, otherbus] = (Q[bus] - (buses[str(bus+1)].V**2)*np.imag(Ybus[bus, bus]))/buses[str(bus+1)].V
             else:
@@ -177,9 +185,11 @@ J = np.vstack((np.hstack((H, N)), np.hstack((M, L))))
 
 correction = np.linalg.solve(J, mis)
 
-print(correction, correction[3], len(correction)/2)
+for key in buses.keys():
+    print(buses[key].V, buses[key].theta)
 
-# for index in range(len(correction)/2):
-buses['2'].refresh(10, 2)
+for index in range(int(len(correction)/2)):
+    buses[str(index + 1)].refresh(correction[index][0], correction[index + len(buses)][0])
 
-print(buses['2'].V, buses['2'].theta)
+for key in buses.keys():
+    print(buses[key].V, buses[key].theta)
