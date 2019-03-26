@@ -148,6 +148,9 @@ for bus in range(len(buses)):
         P[bus] += buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus])*np.cos(theta_km) + np.imag(Ybus[bus, otherbus]*np.sin(theta_km)))
         Q[bus] += buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus])*np.sin(theta_km) - np.imag(Ybus[bus, otherbus]*np.cos(theta_km)))
 
+    # Save calculated values of power
+    buses[str(bus+1)].save_power(P[bus], Q[bus])
+
     # Calculate mismatches
     if buses[str(bus+1)].bustype == 'PQ':
         misP[bus] = buses[str(bus+1)].P - P[bus]
@@ -167,13 +170,13 @@ print(30*"-")
 
 while max(abs(mis)) > tolerance and counter < 100:
 
-    # Create Jacobian Submatrices
+    # Create Jacobian submatrices
     H = np.zeros((len(buses), len(buses)))
     N = np.zeros((len(buses), len(buses)))
     M = np.zeros((len(buses), len(buses)))
     L = np.zeros((len(buses), len(buses)))
 
-    # Calculate Jacobian Submatrices
+    # Calculate Jacobian submatrices
     for bus in range(len(buses)):
         for otherbus in range(len(buses)):
 
@@ -228,6 +231,9 @@ while max(abs(mis)) > tolerance and counter < 100:
             # Calculate active and reactive power reaching bus
             P[bus] += buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus])*np.cos(theta_km) + np.imag(Ybus[bus, otherbus]*np.sin(theta_km)))
             Q[bus] += buses[str(bus+1)].V*buses[str(otherbus+1)].V*(np.real(Ybus[bus, otherbus])*np.sin(theta_km) - np.imag(Ybus[bus, otherbus]*np.cos(theta_km)))
+
+        # Save calculated values of power
+        buses[str(bus + 1)].save_power(P[bus], Q[bus])
 
         # Calculate mismatches
         if buses[str(bus+1)].bustype == 'PQ':
